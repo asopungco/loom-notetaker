@@ -19,12 +19,15 @@ current = False
 class FileChoose(Popup):
     load = ObjectProperty()
 
-
 class MyGridLayout(Widget):
+
+    # PROPERTIES        ===============================================
+
     file_path = StringProperty("No file chosen")
     text_input = ObjectProperty()
     popup = ObjectProperty()
 
+    # FILE OPERATIONS   ===============================================
 
     def load(self, path, filename):
         with open(os.path.join(path, filename[0])) as stream:
@@ -45,6 +48,7 @@ class MyGridLayout(Widget):
             file.close()
             self.ids.text_input.text = contents
 
+
     def delete(self):
         Tk().withdraw()
         self.ids.text_input.text = ""
@@ -54,6 +58,7 @@ class MyGridLayout(Widget):
             os.remove(current)
             messagebox.showinfo("Delete", "File successfully deleted.")
             self.ids.file_open.text = "No Open File" 
+
 
     def saveAs(self):
         Tk().withdraw() # hide tkinter window
@@ -82,6 +87,7 @@ class MyGridLayout(Widget):
 
         self.ids.file_open.text = "Editing: " + current #shows what file is currently open
 
+
     def save(self):
         # checks whether a previously saved file is currently open
         global current
@@ -93,6 +99,7 @@ class MyGridLayout(Widget):
         else:
             self.saveAs()
     
+
     def moveFile(self):
         Tk().withdraw()
         global current
@@ -118,19 +125,49 @@ class MyGridLayout(Widget):
             messagebox.showinfo("Move", "File successfully moved.")
         else:
             messagebox.showinfo("Move", "Please open a file and try again.")
+
+    # SEARCHING         ===============================================
+
+    # searches using NAME of notes
+    def search(self):
+
+        USE_SAMPLE_NOTELIST = True
+
+        search_string = self.ids.search_bar.text
+        print("Search string:", search_string)
+
+        if USE_SAMPLE_NOTELIST:  # CURRENTLY BUILT TO ONLY HANDLE INPUT FROM TEXT FILE
+            search_space = open("sample_notelist.txt", "r").readlines()
+
+        self.ids.search_matches.text = "" 
+        matches_found = 0
+
+        for name in search_space:    
+            if search_string in name:
+                print(name)
+                matches_found += 1
+                self.ids.search_matches.text += name
+            
+        if matches_found == 0:
+            self.ids.search_matches.text = "No matches found"
+                    
+
+
+    # ERROR INTERFACE   ===============================================
+
     # terminal interface to manually select what error to trigger
     def error_trigger(self):
         
-        errors = ["Read-only Error"]
+        errors = ["Read-only Error", "Create File Failure"]
         print("Please select what error you wish to trigger:")
 
         for i in range(len(errors)):
-            print('\t{0} {1}\n'.format(str(i), errors[i]))
+            print('\t{0} {1}'.format(str(i), errors[i]))
 
         whichError = int(input("Enter the index of the error: "))
         
         if whichError in range(len(errors)):
-            print("You selected {0}.\n".format(errors[whichError]))
+            print("ERROR: {0}.\n".format(errors[whichError]))
         
 
 
@@ -138,6 +175,7 @@ class MyApp(App):
 
     def build(self):
         return MyGridLayout()
+
 
 if __name__ == "__main__":
     MyApp().run()
